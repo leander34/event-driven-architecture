@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest'
+import { expect, test, vi } from 'vitest'
 import SubmitQuiz from '../src/application/usecase/SubmitQuiz'
 import QuizRepositoryMemory from '../src/infra/repository/QuizRepositoryMemory'
 import MailerMemory from '../src/infra/service/MailerMemory'
@@ -31,6 +31,8 @@ test('Um usuário deve submeter um quiz respondido e a nota deve ser calculada e
   )
   mediator.register(quizCorrectorHanlder)
   const mailer = new MailerMemory()
+  const mailerSpy = vi.spyOn(mailer, 'send')
+
   const quizCommunicatorHandler = new QuizCommunicatorHandler(mailer)
   mediator.register(quizCommunicatorHandler)
   const submitQuiz = new SubmitQuiz(mediator)
@@ -45,4 +47,5 @@ test('Um usuário deve submeter um quiz respondido e a nota deve ser calculada e
   }
   await submitQuiz.execute(input)
   expect(mailer.messages[0].message).toBe('Olá John Doe, sua nota do quiz é 50')
+  expect(mailerSpy).toBeCalledTimes(1)
 })
